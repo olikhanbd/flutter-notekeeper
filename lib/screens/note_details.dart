@@ -19,6 +19,8 @@ class NoteDetailsState extends State<NoteDetails> {
   var _priorities = ["High", "Low"];
   var selectedPriority = "Low";
   var selectedPriorityInt = 2;
+
+  var _formKey = GlobalKey<FormState>();
   TextEditingController titleController = TextEditingController();
   TextEditingController descController = TextEditingController();
 
@@ -44,111 +46,126 @@ class NoteDetailsState extends State<NoteDetails> {
           exitScreen();
         },
         child: Scaffold(
-          appBar: AppBar(
-            title: Text(appBarTitle),
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () {
-                exitScreen();
-              },
+            appBar: AppBar(
+              title: Text(appBarTitle),
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  exitScreen();
+                },
+              ),
             ),
-          ),
-          body: Padding(
-            padding: EdgeInsets.only(top: 15.0, left: 10.0, right: 10.0),
-            child: ListView(
-              children: <Widget>[
-                ListTile(
-                  title: DropdownButton(
-                      items: _priorities.map((String dropDownItem) {
-                        return DropdownMenuItem<String>(
-                          value: dropDownItem,
-                          child: Text(dropDownItem),
-                        );
-                      }).toList(),
-                      style: textStyle,
-                      value: selectedPriority,
-                      onChanged: (itemSelected) {
-                        setState(() {
-                          selectedPriority = itemSelected;
-                          updatePriorityAsInt(selectedPriority);
-                        });
-                      }),
-                ),
+            body: Form(
+              key: _formKey,
+              child: Padding(
+                padding: EdgeInsets.only(top: 15.0, left: 10.0, right: 10.0),
+                child: ListView(
+                  children: <Widget>[
+                    ListTile(
+                      title: DropdownButton(
+                          items: _priorities.map((String dropDownItem) {
+                            return DropdownMenuItem<String>(
+                              value: dropDownItem,
+                              child: Text(dropDownItem),
+                            );
+                          }).toList(),
+                          style: textStyle,
+                          value: selectedPriority,
+                          onChanged: (itemSelected) {
+                            setState(() {
+                              selectedPriority = itemSelected;
+                              updatePriorityAsInt(selectedPriority);
+                            });
+                          }),
+                    ),
 
-                /////////////////////////TITLE TEXTFIELD////////////////////////////
-                Padding(
-                  padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
-                  child: TextField(
-                    controller: titleController,
-                    style: textStyle,
-                    onChanged: (value) {
-                      debugPrint("editing title");
-                    },
-                    decoration: InputDecoration(
-                        labelText: "Title",
-                        labelStyle: textStyle,
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5.0))),
-                  ),
-                ),
+                    /////////////////////////TITLE TEXTFIELD////////////////////////
+                    Padding(
+                      padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
+                      child: TextFormField(
+                        controller: titleController,
+                        validator: (String value) {
+                          if (value.isEmpty) {
+                            return "Please enter a valid title";
+                          }
+                        },
+                        style: textStyle,
+                        decoration: InputDecoration(
+                            labelText: "Title",
+                            labelStyle: textStyle,
+                            errorStyle:
+                                TextStyle(color: Colors.red, fontSize: 15.0),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5.0))),
+                      ),
+                    ),
 
-                /////////////////Description TEXTFIELD////////////////////////////
-                Padding(
-                  padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
-                  child: TextField(
-                    controller: descController,
-                    style: textStyle,
-                    onChanged: (value) {
-                      debugPrint("editing desc");
-                    },
-                    decoration: InputDecoration(
-                        labelText: "Description",
-                        labelStyle: textStyle,
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5.0))),
-                  ),
-                ),
+                    /////////////////DESCRIPTION TEXTFIELD//////////////////////////
+                    Padding(
+                      padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
+                      child: TextFormField(
+                        controller: descController,
+                        validator: (String value) {
+                          if (value.isEmpty) {
+                            return "Please enter a valid description";
+                          }
+                        },
+                        style: textStyle,
+                        decoration: InputDecoration(
+                            labelText: "Description",
+                            errorStyle:
+                                TextStyle(color: Colors.red, fontSize: 15.0),
+                            labelStyle: textStyle,
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5.0))),
+                      ),
+                    ),
 
-                //////////////////////BUTTONS///////////////////////////////////////
-                Padding(
-                    padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: RaisedButton(
-                              color: Theme.of(context).primaryColorDark,
-                              textColor: Colors.white,
-                              child: Text(
-                                "Save",
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _save();
-                                });
-                              }),
-                        ),
-                        Container(
-                          width: 5.0,
-                        ),
-                        Expanded(
-                          child: RaisedButton(
-                              color: Theme.of(context).primaryColorDark,
-                              textColor: Colors.white,
-                              child: Text(
-                                "Delete",
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _delete();
-                                });
-                              }),
-                        )
-                      ],
-                    ))
-              ],
-            ),
-          ),
-        ));
+                    //////////////////////BUTTONS///////////////////////////////////
+                    Padding(
+                        padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: RaisedButton(
+                                  color: Theme.of(context).primaryColorDark,
+                                  textColor: Colors.white,
+                                  child: Text(
+                                    "Save",
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      if (_formKey.currentState.validate())
+                                        _save();
+                                    });
+                                  }),
+                            ),
+                            Container(
+                              width: 5.0,
+                            ),
+                            Expanded(
+                              child: RaisedButton(
+                                  color: Theme.of(context).primaryColorDark,
+                                  textColor: Colors.white,
+                                  child: Text(
+                                    "Delete",
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      if (note != null)
+                                        _delete();
+                                      else
+                                        _showAlert(
+                                            "Error", "No note to delete");
+                                    });
+                                  }),
+                            )
+                          ],
+                        ))
+                  ],
+                ),
+              ),
+            )));
   }
 
   void exitScreen() {
@@ -182,11 +199,13 @@ class NoteDetailsState extends State<NoteDetails> {
   }
 
   void _save() async {
+    exitScreen();
+
     String dateNow = DateFormat.yMMMd().format(DateTime.now());
 
     if (note == null) {
       String title = titleController.text;
-      String description = titleController.text;
+      String description = descController.text;
       String date = dateNow;
       int priority = selectedPriorityInt;
       Note newNote = Note(title, date, priority, description);
@@ -194,44 +213,43 @@ class NoteDetailsState extends State<NoteDetails> {
       int result = await databaseHelper.insertNote(newNote);
 
       if (result != 0) {
-        _showAlert(context, "Successfully inserted");
-        exitScreen();
+        _showAlert("Success", "Successfully inserted");
       } else {
-        _showAlert(context, "Insert failed");
+        _showAlert("Failure", "Insert failed");
       }
     } else {
       note.title = titleController.text;
-      note.description = titleController.text;
+      note.description = descController.text;
       note.date = dateNow;
       note.priority = selectedPriorityInt;
 
       int result = await databaseHelper.updateNote(note);
 
       if (result != 0) {
-        _showAlert(context, "Successfully updated");
-        exitScreen();
+        _showAlert("Success", "Successfully updated");
       } else {
-        _showAlert(context, "Update failed");
+        _showAlert("Failure", "Update failed");
       }
     }
   }
 
   void _delete() async {
+    exitScreen();
+
     if (note != null) {
       int result = await databaseHelper.deleteNote(note.id);
 
       if (result != 0) {
-        _showAlert(context, "Successfully deleted");
-        exitScreen();
+        _showAlert("Success", "Successfully deleted");
       } else {
-        _showAlert(context, "Deletion failed");
+        _showAlert("Failure", "Deletion failed");
       }
     }
   }
 
-  void _showAlert(BuildContext context, String msg) {
+  void _showAlert(String title, String msg) {
     AlertDialog alertDialog = AlertDialog(
-      title: Text("Note"),
+      title: Text(title),
       content: Text(msg),
     );
     showDialog(context: context, builder: (_) => alertDialog);
